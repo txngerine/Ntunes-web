@@ -611,20 +611,51 @@
     .flow-arrow{ margin: 0 8px; }
   }
 
-  /* ---------- PLATFORMS ---------- */
-  .platform-row{
-    margin-top: 46px;
-    display:flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .platform-chip{
-    font-size: 12px;
-    padding: 10px 18px;
-    border-radius: 999px;
-    border: 1px solid var(--line);
-    color: var(--grey);
+  /* ---------- PLATFORMS TREE ---------- */
+  .platform-tree{
+    margin-top: 52px;
+    max-width: 560px;
     background: var(--black-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 26px 30px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    overflow-x: auto;
+  }
+  .platform-tree__root{
+    display:flex;
+    align-items:center;
+    gap: 9px;
+    color: var(--paper);
+    font-weight: 700;
+    margin-bottom: 14px;
+    white-space: nowrap;
+  }
+  .platform-tree__root .nav__dot{ background: var(--orange); }
+  .platform-tree__row{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 5px 0;
+    white-space: nowrap;
+  }
+  .platform-tree__branch{
+    color: var(--grey-dim);
+    flex-shrink: 0;
+  }
+  .platform-tree__name{
+    color: var(--paper);
+    font-weight: 600;
+    min-width: 74px;
+  }
+  .platform-tree__arrow{ color: var(--grey-dim); flex-shrink: 0; }
+  .platform-tree__tag{
+    color: var(--orange);
+  }
+  @media (max-width: 480px){
+    .platform-tree{ padding: 20px 18px 22px; font-size: 12px; }
+    .platform-tree__name{ min-width: 62px; }
   }
 
   /* ---------- DOWNLOAD ---------- */
@@ -878,7 +909,7 @@ const { useRef, useMemo, useState, useEffect } = React;
 
 /* ---------------- Config ---------------- */
 /* Update these two values to point at your real APK release and support inbox. */
-const ANDROID_APK_URL = "https://github.com/your-org/ntunes/releases/latest/download/ntunes.apk";
+const ANDROID_APK_URL = "https://github.com/txngerine/Ntunes-web/releases/tag/v0.0.1";
 const SUPPORT_EMAIL = "support@ntunes.app";
 
 const IconAndroid = html`
@@ -1306,7 +1337,14 @@ function DataFlow(){
 
 /* ---------------- Platforms ---------------- */
 function Platforms(){
-  const platforms = ["Android", "iOS", "macOS", "Windows", "Linux", "Web"];
+  const platforms = [
+    { name: "Android", tag: ".apk" },
+    { name: "iOS", tag: ".ipa" },
+    { name: "macOS", tag: ".app" },
+    { name: "Windows", tag: ".exe" },
+    { name: "Linux", tag: ".AppImage" },
+    { name: "Web", tag: "wasm bundle" },
+  ];
   return html`
     <section className="section platforms" id="platforms">
       <div className="wrap">
@@ -1319,18 +1357,34 @@ function Platforms(){
           <div className="section__label mono">SAME CODEBASE, EVERYWHERE</div>
           <div className="section__title">Six platforms. <em>One Flutter tree.</em></div>
         <//>
-        <div className="platform-row">
+
+        <${motion.div}
+          className="platform-tree"
+          initial=${{ opacity: 0, y: 24 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6, delay: 0.1 }}
+        >
+          <div className="platform-tree__root">
+            <span className="nav__dot"></span>
+            flutter_codebase/
+          </div>
           ${platforms.map((p, i) => html`
-            <${motion.span}
+            <${motion.div}
               key=${i}
-              className="platform-chip mono"
-              initial=${{ opacity: 0, y: 10 }}
-              whileInView=${{ opacity: 1, y: 0 }}
+              className="platform-tree__row"
+              initial=${{ opacity: 0, x: -12 }}
+              whileInView=${{ opacity: 1, x: 0 }}
               viewport=${{ once: true }}
-              transition=${{ duration: 0.4, delay: i * 0.06 }}
-            >${p}<//>
+              transition=${{ duration: 0.4, delay: 0.15 + i * 0.08 }}
+            >
+              <span className="platform-tree__branch">${i === platforms.length - 1 ? "└──" : "├──"}</span>
+              <span className="platform-tree__name">${p.name}</span>
+              <span className="platform-tree__arrow">→</span>
+              <span className="platform-tree__tag">${p.tag}</span>
+            <//>
           `)}
-        </div>
+        <//>
       </div>
     </section>
   `;
@@ -1380,11 +1434,11 @@ function Download(){
             </p>
           </div>
           <div className="download-card__action">
-            <a className="android-btn" href=${ANDROID_APK_URL} download>
+            <a className="android-btn" href=${ANDROID_APK_URL} target="_blank" rel="noopener noreferrer">
               ${IconAndroid}
               Download APK
             </a>
-            <span className="download-card__hint mono">direct download · sideload required</span>
+            <span className="download-card__hint mono">opens the GitHub release page · sideload required</span>
           </div>
         <//>
       </div>
