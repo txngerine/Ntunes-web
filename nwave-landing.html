@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NTunes — a music player that breathes with sound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black: #0a0a0b;
+    --black-2: #131315;
+    --black-3: #1b1b1e;
+    --line: #2a2a2d;
+    --paper: #f2efe8;
+    --grey: #8f8f93;
+    --grey-dim: #5c5c60;
+    --red: #e0142a;
+    --orange: #ff5a1f;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior: smooth; }
+  html, body { background: var(--black); overflow-x: hidden; }
+
+  body{
+    font-family: 'Inter', sans-serif;
+    color: var(--paper);
+    background: var(--black);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root{ position: relative; }
+
+  .mono{ font-family: 'JetBrains Mono', monospace; }
+
+  .bg-grid{
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(242,239,232,0.055) 1px, transparent 1.2px);
+    background-size: 26px 26px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 40%, transparent 95%);
+  }
+
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------- NAV ---------- */
+  .nav{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    position: relative;
+    z-index: 50;
+    flex-wrap: wrap;
+    row-gap: 14px;
+    gap: 16px;
+  }
+  .nav__brand{
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--grey);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-shrink: 0;
+  }
+  .nav__dot{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--red);
+    display:inline-block;
+  }
+  .nav__coords{
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--grey-dim);
+  }
+  .nav__right{
+    display:flex;
+    align-items:center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+  .nav__link{
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    color: var(--grey);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .nav__link:hover{ color: var(--paper); }
+  .nav__cta{
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    color: var(--black);
+    background: var(--paper);
+    padding: 9px 16px;
+    border-radius: 999px;
+    text-decoration: none;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    white-space: nowrap;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav__cta:hover{ transform: translateY(-1px); opacity: 0.9; }
+  @media (max-width: 640px){
+    .nav__coords{ display:none; }
+  }
+  @media (max-width: 520px){
+    .nav{ padding: 18px 20px; }
+    .nav__right{ gap: 14px; width: 100%; justify-content: space-between; }
+  }
+
+  /* ---------- SHARED BUTTONS ---------- */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 14px 26px;
+    border-radius: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+  }
+  .btn:hover{ transform: translateY(-2px); }
+  .btn--primary{
+    background: linear-gradient(180deg, var(--orange), var(--red));
+    color: var(--paper);
+  }
+  .btn--primary:hover{ opacity: 0.92; }
+  .btn--ghost{
+    background: transparent;
+    border-color: var(--line);
+    color: var(--paper);
+  }
+  .btn--ghost:hover{ border-color: rgba(255,255,255,0.35); }
+  .btn--block{ width: 100%; }
+  @media (max-width: 480px){
+    .btn{ font-size: 13.5px; padding: 13px 20px; }
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height: 92vh;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px 80px;
+    position: relative;
+  }
+  .hero__eyebrow{
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--grey-dim);
+    margin-bottom: 28px;
+  }
+  .hero__title{
+    font-family: 'Major Mono Display', monospace;
+    font-weight: 400;
+    font-size: clamp(40px, 9vw, 96px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    display:flex;
+    align-items:center;
+    gap: 18px;
+    color: var(--paper);
+  }
+  .hero__title-dot{
+    width: clamp(10px, 1.6vw, 16px);
+    height: clamp(10px, 1.6vw, 16px);
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 24px 2px rgba(224,20,42,0.55);
+    flex-shrink: 0;
+  }
+  .hero__tagline{
+    margin-top: 26px;
+    max-width: 480px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--grey);
+    font-weight: 400;
+  }
+  .hero__tagline b{ color: var(--paper); font-weight: 600; }
+
+  .hero__pkg{
+    margin-top: 22px;
+    font-size: 12px;
+    color: var(--grey-dim);
+    letter-spacing: 0.06em;
+  }
+  .hero__pkg span{ color: var(--orange); }
+
+  .hero__actions{
+    margin-top: 34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 480px){
+    .hero{ padding: 32px 18px 64px; min-height: unset; }
+    .hero__title{ gap: 12px; }
+    .hero__actions{ flex-direction: column; width: 100%; }
+    .hero__actions .btn{ width: 100%; }
+  }
+
+  /* ---------- WAVEFORM ---------- */
+  .wave-panel{
+    margin-top: 56px;
+    width: min(560px, 90vw);
+    border-radius: 18px;
+    padding: 26px 22px 20px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+    border: 1px solid rgba(255,255,255,0.09);
+    backdrop-filter: blur(6px);
+  }
+  .wave-panel__head{
+    display:flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--grey-dim);
+    margin-bottom: 16px;
+  }
+  .wave-panel__head b{ color: var(--grey); }
+  .wave-bars{
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    gap: 3px;
+    height: 64px;
+    overflow: hidden;
+  }
+  .wave-bar{
+    width: 3px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--orange), var(--red));
+    opacity: 0.85;
+    flex-shrink: 0;
+  }
+  .wave-panel__time{
+    display:flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    font-size: 10.5px;
+    color: var(--grey-dim);
+  }
+  .wave-panel__time .now{ color: var(--paper); }
+  @media (max-width: 480px){
+    .wave-panel{ padding: 20px 16px 16px; }
+    .wave-panel__head{ flex-direction: column; gap: 4px; text-align: center; }
+    .wave-panel__time span:nth-child(2){ display:none; }
+    .wave-bars{ gap: 2px; height: 52px; }
+  }
+
+  .scroll-cue{
+    margin-top: 54px;
+    font-size: 10px;
+    color: var(--grey-dim);
+    letter-spacing: 0.2em;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+
+  /* ---------- PHONE PREVIEW ---------- */
+  .preview-wrap{
+    margin-top: 56px;
+    display:flex;
+    justify-content: center;
+  }
+  .phone{
+    width: min(320px, 82vw);
+    border-radius: 44px;
+    padding: 14px;
+    background: linear-gradient(160deg, #1c1c1f, #0a0a0b 60%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 50px 100px -30px rgba(0,0,0,0.8);
+  }
+  .phone__screen{
+    background: var(--black);
+    border-radius: 32px;
+    padding: 18px 20px 22px;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+  .phone__status{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    width:100%;
+    font-size: 11px;
+    color: var(--paper);
+    margin-bottom: 22px;
+  }
+  .phone__status-icons{ display:flex; align-items:center; gap:5px; }
+  .phone__header{
+    display:flex;
+    align-items:flex-start;
+    justify-content: space-between;
+    width:100%;
+    margin-bottom: 24px;
+  }
+  .phone__header-title{
+    flex:1;
+    text-align:center;
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    line-height: 1.5;
+    color: var(--paper);
+  }
+  .phone__cover{
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 22px;
+    border: 1.5px solid rgba(255,255,255,0.85);
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.18), transparent 55%),
+      linear-gradient(150deg, var(--orange), var(--red) 60%, #6a0f18);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .phone__cover-bars{
+    display:flex;
+    align-items:center;
+    gap: 4px;
+    height: 46%;
+  }
+  .phone__cover-bars span{
+    width: 5px;
+    border-radius: 3px;
+    background: rgba(10,10,11,0.85);
+    display:block;
+  }
+  .phone__track{
+    font-size: 15px;
+    font-weight: 700;
+    text-align:center;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .phone__artist{
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    color: var(--orange);
+    margin-bottom: 26px;
+  }
+  .phone__waveform{
+    width: 100%;
+    display:flex;
+    align-items:center;
+    gap: 2px;
+    height: 34px;
+    margin-bottom: 6px;
+  }
+  .phone__waveform span{
+    width: 2.5px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    background: var(--line);
+  }
+  .phone__waveform span.played{
+    background: linear-gradient(180deg, var(--orange), var(--red));
+  }
+  .phone__times{
+    width:100%;
+    display:flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--grey-dim);
+    margin-bottom: 26px;
+  }
+  .phone__controls{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+  }
+  .phone__controls button{
+    background:none;
+    border:none;
+    padding:0;
+    color: var(--paper);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor: pointer;
+  }
+  .phone__controls .dim{ color: var(--grey-dim); }
+  .phone__play{
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--black-3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .phone__home{
+    width: 110px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.6);
+    margin-top: 26px;
+  }
+  @media (max-width: 480px){
+    .phone{ padding: 10px; border-radius: 36px; }
+    .phone__screen{ padding: 16px 16px 18px; border-radius: 26px; }
+  }
+
+  /* ---------- SECTION SHARED ---------- */
+  .section{
+    position: relative;
+    padding: 120px 0;
+    border-top: 1px solid var(--line);
+  }
+  .section__label{
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey-dim);
+    margin-bottom: 14px;
+  }
+  .section__title{
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    max-width: 640px;
+    line-height: 1.2;
+  }
+  .section__title em{
+    font-style: normal;
+    color: var(--grey);
+  }
+  @media (max-width: 860px){
+    .section{ padding: 88px 0; }
+  }
+  @media (max-width: 480px){
+    .wrap{ padding: 0 20px; }
+    .section{ padding: 64px 0; }
+  }
+
+  /* ---------- FEATURES ---------- */
+  .feat-grid{
+    margin-top: 56px;
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 860px){
+    .feat-grid{ grid-template-columns: 1fr; }
+  }
+  .feat-card{
+    background: var(--black-2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 30px 26px;
+    position: relative;
+    overflow: hidden;
+  }
+  .feat-card__icon{
+    width: 34px; height: 34px;
+    margin-bottom: 22px;
+  }
+  .feat-card__title{
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .feat-card__body{
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--grey);
+  }
+  .feat-card__tag{
+    position:absolute;
+    top: 22px; right: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--grey-dim);
+  }
+  @media (max-width: 480px){
+    .feat-card{ padding: 24px 20px; }
+  }
+
+  /* ---------- MANIFEST ---------- */
+  .manifest{
+    margin-top: 56px;
+    max-width: 640px;
+    background: var(--black-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .manifest__bar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .manifest__dot{ width:9px; height:9px; border-radius:50%; background: var(--line); }
+  .manifest__bar span.file{
+    margin-left: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--grey-dim);
+  }
+  .manifest__body{
+    padding: 28px 24px 26px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+  @media (max-width: 480px){
+    .manifest__body{ padding: 22px 16px 20px; font-size: 12px; }
+    .manifest__bar{ padding: 10px 14px; }
+  }
+  .manifest__key{ color: var(--grey-dim); }
+  .manifest__val{ color: var(--paper); }
+  .manifest__val.orange{ color: var(--orange); }
+  .manifest__cursor{
+    display:inline-block;
+    width: 7px; height: 14px;
+    background: var(--orange);
+    margin-left: 4px;
+    vertical-align: -2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink{
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ---------- DATA FLOW ---------- */
+  .flow-block{
+    margin-top: 56px;
+    display:flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .flow-row{
+    display:flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 22px 0;
+    border-top: 1px solid var(--line);
+  }
+  .flow-row:first-child{ border-top: none; }
+  .flow-row__num{
+    font-size: 11px;
+    color: var(--grey-dim);
+    padding-top: 3px;
+    flex-shrink: 0;
+  }
+  .flow-row__steps{
+    display:flex;
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+  .flow-step{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--paper);
+    display:flex;
+    align-items:center;
+  }
+  .flow-arrow{
+    color: var(--orange);
+    margin: 0 12px;
+    font-size: 13px;
+  }
+  @media (max-width: 640px){
+    .flow-step{ font-size: 11.5px; }
+    .flow-arrow{ margin: 0 8px; }
+  }
+
+  /* ---------- PLATFORMS ---------- */
+  .platform-row{
+    margin-top: 46px;
+    display:flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .platform-chip{
+    font-size: 12px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--grey);
+    background: var(--black-2);
+  }
+
+  /* ---------- DOWNLOAD ---------- */
+  .download-card{
+    margin-top: 56px;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 40px;
+    background: var(--black-2);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 40px 44px;
+    flex-wrap: wrap;
+  }
+  .download-card__info{ flex: 1 1 320px; min-width: 260px; }
+  .download-card__badge{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--grey-dim);
+    margin-bottom: 14px;
+  }
+  .download-card__badge .nav__dot{ background: var(--orange); }
+  .download-card__heading{
+    font-size: 21px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .download-card__body{
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--grey);
+    max-width: 420px;
+  }
+  .download-card__meta{
+    margin-top: 18px;
+    display:flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 11.5px;
+    color: var(--grey-dim);
+  }
+  .download-card__meta b{ color: var(--paper); font-weight: 600; }
+  .download-card__action{
+    flex: 0 0 auto;
+    display:flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .android-btn{
+    display:inline-flex;
+    align-items:center;
+    gap: 12px;
+    background: var(--paper);
+    color: var(--black);
+    padding: 14px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14.5px;
+    white-space: nowrap;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .android-btn:hover{ transform: translateY(-2px); opacity: 0.92; }
+  .android-btn svg{ flex-shrink: 0; }
+  .download-card__hint{
+    font-size: 10.5px;
+    color: var(--grey-dim);
+    text-align: center;
+  }
+  .other-platforms-note{
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--grey-dim);
+  }
+  @media (max-width: 720px){
+    .download-card{ padding: 32px 28px; flex-direction: column; align-items: flex-start; text-align: left; }
+    .download-card__action{ width: 100%; }
+    .android-btn{ width: 100%; justify-content: center; }
+  }
+  @media (max-width: 480px){
+    .download-card{ padding: 26px 20px; border-radius: 14px; margin-top: 40px; }
+    .download-card__heading{ font-size: 18px; }
+  }
+
+  /* ---------- CONTACT / BUG REPORT ---------- */
+  .contact-card{
+    margin-top: 56px;
+    max-width: 640px;
+    background: var(--black-2);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 36px 40px 40px;
+  }
+  .field{
+    margin-bottom: 18px;
+    display:flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .field-row{
+    display:flex;
+    gap: 16px;
+  }
+  .field-row .field{ flex: 1 1 0; min-width: 0; }
+  .field label{
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--grey-dim);
+  }
+  .field input,
+  .field select,
+  .field textarea{
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--paper);
+    background: var(--black-3);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s ease;
+  }
+  .field select{ cursor: pointer; }
+  .field textarea{ resize: vertical; min-height: 110px; line-height: 1.5; font-family: 'Inter', sans-serif; }
+  .field input::placeholder,
+  .field textarea::placeholder{ color: var(--grey-dim); }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus{ border-color: var(--orange); }
+  .field-error{ font-size: 11.5px; color: var(--red); }
+  .contact-card__foot{
+    margin-top: 8px;
+    display:flex;
+    align-items:center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .contact-card__status{
+    font-size: 12.5px;
+    color: var(--grey);
+  }
+  .contact-card__status.ok{ color: #7fd18a; }
+  .contact-alt{
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--grey-dim);
+  }
+  .contact-alt a{ color: var(--grey); }
+  @media (max-width: 640px){
+    .contact-card{ padding: 26px 22px 30px; }
+    .field-row{ flex-direction: column; gap: 0; }
+  }
+
+  /* ---------- QUOTE ---------- */
+  .quote{
+    text-align:center;
+    padding: 130px 0;
+  }
+  .quote__mark{
+    font-family: 'Major Mono Display', monospace;
+    font-size: clamp(24px, 3.4vw, 34px);
+    line-height: 1.55;
+    max-width: 760px;
+    margin: 0 auto;
+    color: var(--paper);
+  }
+  .quote__by{
+    margin-top: 26px;
+    font-size: 12px;
+    color: var(--grey-dim);
+    letter-spacing: 0.1em;
+  }
+  @media (max-width: 480px){
+    .quote{ padding: 88px 0; }
+  }
+
+  /* ---------- FOOTER ---------- */
+  .footer{
+    border-top: 1px solid var(--line);
+    padding: 46px 0 40px;
+  }
+  .footer__row{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer__brand{
+    font-family: 'Major Mono Display', monospace;
+    font-size: 18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .footer__coords{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--grey-dim);
+    letter-spacing: 0.05em;
+    text-align: right;
+  }
+  .footer__links{
+    display:flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .footer__links a{
+    font-size: 11.5px;
+    color: var(--grey);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .footer__links a:hover{ color: var(--paper); }
+  .footer__meta{
+    margin-top: 26px;
+    font-size: 11.5px;
+    color: var(--grey-dim);
+    display:flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  @media (max-width: 640px){
+    .footer__coords{ text-align: left; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="module">
+import React from "https://esm.sh/react@18.2.0";
+import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
+import { motion, useScroll, useTransform, useReducedMotion } from "https://esm.sh/framer-motion@11.2.10?deps=react@18.2.0";
+import htm from "https://esm.sh/htm@3.1.1";
+
+const html = htm.bind(React.createElement);
+const { useRef, useMemo, useState, useEffect } = React;
+
+/* ---------------- Config ---------------- */
+/* Update these two values to point at your real APK release and support inbox. */
+const ANDROID_APK_URL = "https://github.com/your-org/ntunes/releases/latest/download/ntunes.apk";
+const SUPPORT_EMAIL = "support@ntunes.app";
+
+const IconAndroid = html`
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path d="M6.3 8.4 4.6 5.5m13.1 2.9 1.7-2.9M7.5 20.2v-6.6h9v6.6a1 1 0 0 1-1 1h-.7v2.2a1 1 0 1 1-2 0v-2.2h-1.6v2.2a1 1 0 1 1-2 0v-2.2h-.7a1 1 0 0 1-1-1Zm-2.7-6.6a1.3 1.3 0 0 1 1.3 1.3v4.4a1.3 1.3 0 1 1-2.6 0v-4.4a1.3 1.3 0 0 1 1.3-1.3Zm14.4 0a1.3 1.3 0 0 1 1.3 1.3v4.4a1.3 1.3 0 1 1-2.6 0v-4.4a1.3 1.3 0 0 1 1.3-1.3ZM7.5 12.4a4.5 5.1 0 0 1 9 0Z" fill="#0a0a0b" stroke="#0a0a0b" stroke-width="0.4" stroke-linejoin="round"/>
+  </svg>
+`;
+
+/* -- phone-mock glyphs, kept minimal/line-style to match the status & transport bar -- */
+const IconWifi = html`<svg width="14" height="11" viewBox="0 0 16 12" fill="none"><path d="M1 4.2a10.5 10.5 0 0 1 14 0" stroke="#f2efe8" stroke-width="1.3" stroke-linecap="round"/><path d="M3.6 7a6.6 6.6 0 0 1 8.8 0" stroke="#f2efe8" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="10" r="1.1" fill="#f2efe8"/></svg>`;
+const IconSignal = html`<svg width="14" height="11" viewBox="0 0 16 12" fill="none"><rect x="0.5" y="7" width="2.6" height="4.5" rx="0.6" fill="#f2efe8"/><rect x="4.7" y="4.7" width="2.6" height="6.8" rx="0.6" fill="#f2efe8"/><rect x="8.9" y="2.5" width="2.6" height="9" rx="0.6" fill="#f2efe8"/><rect x="13.1" y="0.3" width="2.6" height="11.2" rx="0.6" fill="rgba(242,239,232,0.35)"/></svg>`;
+const IconBattery = html`<svg width="22" height="11" viewBox="0 0 24 12" fill="none"><rect x="0.7" y="0.7" width="19.6" height="10.6" rx="2.6" stroke="#f2efe8" stroke-width="1.1"/><rect x="2.2" y="2.2" width="13" height="7.6" rx="1.3" fill="#f2efe8"/><rect x="21" y="4" width="2" height="4" rx="1" fill="#f2efe8"/></svg>`;
+const IconChevronLeft = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#f2efe8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const IconMore = html`<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.7" fill="#f2efe8"/><circle cx="12" cy="12" r="1.7" fill="#f2efe8"/><circle cx="12" cy="19" r="1.7" fill="#f2efe8"/></svg>`;
+const IconShuffle = html`<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M3 6h3.6c1.6 0 3 .9 3.8 2.3L15.6 18c.8 1.4 2.2 2.3 3.8 2.3H21M3 18h3.6c1.6 0 3-.9 3.8-2.3l.6-1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 3.5 21 6l-3.5 2.5M17.5 20.5 21 18l-3.5-2.5m-6-6L13 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const IconPrev = html`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="2" height="14" rx="1" fill="currentColor"/><path d="M19 6.2 8.6 12 19 17.8Z" fill="currentColor"/></svg>`;
+const IconNext = html`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="17" y="5" width="2" height="14" rx="1" fill="currentColor"/><path d="M5 6.2 15.4 12 5 17.8Z" fill="currentColor"/></svg>`;
+const IconPlayGlyph = html`<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5Z" fill="currentColor"/></svg>`;
+const IconRepeat = html`<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 9V7a3 3 0 0 1 3-3h13m0 0-3-3m3 3-3 3M20 15v2a3 3 0 0 1-3 3H4m0 0 3 3m-3-3 3-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* ---------------- Waveform ---------------- */
+function Waveform(){
+  const reduce = useReducedMotion();
+  const bars = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < 46; i++){
+      const base = 8 + Math.abs(Math.sin(i * 0.4)) * 40 + Math.random() * 14;
+      arr.push(Math.max(6, Math.min(56, base)));
+    }
+    return arr;
+  }, []);
+
+  return html`
+    <div className="wave-panel">
+      <div className="wave-panel__head">
+        <span>NOW PLAYING</span>
+        <b>resolved via isolate — off the main thread</b>
+      </div>
+      <div className="wave-bars">
+        ${bars.map((h, i) => html`
+          <${motion.div}
+            key=${i}
+            className="wave-bar"
+            style=${{ height: h }}
+            animate=${reduce ? {} : { scaleY: [0.4, 1, 0.55, 0.9, 0.4] }}
+            transition=${{ duration: 1.6 + (i % 5) * 0.15, repeat: Infinity, ease: "easeInOut", delay: i * 0.035 }}
+          />
+        `)}
+      </div>
+      <div className="wave-panel__time">
+        <span className="now">1:42</span>
+        <span>stream · cache · queue — all reactive</span>
+        <span>3:58</span>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------------- Nav ---------------- */
+function Nav(){
+  return html`
+    <${motion.div}
+      className="nav"
+      initial=${{ opacity: 0, y: -14 }}
+      animate=${{ opacity: 1, y: 0 }}
+      transition=${{ duration: 0.6 }}
+    >
+      <div className="nav__brand mono">
+        <span className="nav__dot"></span>
+        NTUNES — PACKAGE v1
+      </div>
+      <div className="nav__right">
+        <div className="nav__coords mono">LAT 10.44° N ● LON 76.33° E</div>
+        <a className="nav__link" href="#download">Download</a>
+        <a className="nav__link" href="#contact">Report a bug</a>
+        <a className="nav__cta" href="#download">
+          ${IconAndroid}
+          Get the app
+        </a>
+      </div>
+    <//>
+  `;
+}
+
+/* ---------------- Hero ---------------- */
+function Hero(){
+  return html`
+    <section className="hero">
+      <${motion.div}
+        className="hero__eyebrow mono"
+        initial=${{ opacity: 0 }}
+        animate=${{ opacity: 1 }}
+        transition=${{ delay: 0.2, duration: 0.6 }}
+      >
+        Cross-platform music streaming, built with flutter
+      <//>
+
+      <${motion.h1}
+        className="hero__title"
+        initial=${{ opacity: 0, y: 24 }}
+        animate=${{ opacity: 1, y: 0 }}
+        transition=${{ delay: 0.35, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      >
+        NTUNES
+        <${motion.span}
+          className="hero__title-dot"
+          animate=${{ opacity: [1, 0.35, 1] }}
+          transition=${{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        />
+      <//>
+
+      <${motion.p}
+        className="hero__tagline"
+        initial=${{ opacity: 0, y: 16 }}
+        animate=${{ opacity: 1, y: 0 }}
+        transition=${{ delay: 0.55, duration: 0.6 }}
+      >
+        Your library, wherever it lives. NTunes pulls from <b>YouTube Music</b>,
+        falls back to <b>Piped</b> when it has to, and plays the same
+        on six platforms without missing a beat.
+      <//>
+
+      <${motion.p}
+        className="hero__pkg mono"
+        initial=${{ opacity: 0 }}
+        animate=${{ opacity: 1 }}
+        transition=${{ delay: 0.75, duration: 0.6 }}
+      >
+        package: <span>ntunes</span> — flutter · getx · just_audio
+      <//>
+
+      <${motion.div}
+        className="hero__actions"
+        initial=${{ opacity: 0, y: 16 }}
+        animate=${{ opacity: 1, y: 0 }}
+        transition=${{ delay: 0.65, duration: 0.6 }}
+      >
+        <a className="btn btn--primary" href="#download">${IconAndroid} Download for Android<//>
+        <a className="btn btn--ghost" href="#contact">Report a bug<//>
+      <//>
+
+      <${motion.div}
+        initial=${{ opacity: 0, y: 24 }}
+        animate=${{ opacity: 1, y: 0 }}
+        transition=${{ delay: 0.9, duration: 0.7 }}
+      >
+        <${Waveform} />
+      <//>
+
+      <${motion.div}
+        className="scroll-cue mono"
+        initial=${{ opacity: 0 }}
+        animate=${{ opacity: 1 }}
+        transition=${{ delay: 1.3, duration: 0.6 }}
+      >
+        <span>SCROLL</span>
+        <${motion.span}
+          animate=${{ y: [0, 6, 0] }}
+          transition=${{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+        >↓<//>
+      <//>
+    </section>
+  `;
+}
+
+/* ---------------- Phone preview (now playing mock) ---------------- */
+function PhonePreview(){
+  const wave = useMemo(() => {
+    const arr = [];
+    for (let i = 0; i < 40; i++){
+      arr.push(4 + Math.abs(Math.sin(i * 0.5)) * 22 + Math.random() * 8);
+    }
+    return arr;
+  }, []);
+  const playedCount = 15;
+
+  return html`
+    <section className="section">
+      <div className="wrap">
+        <${motion.div}
+          initial=${{ opacity: 0, y: 20 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6 }}
+        >
+          <div className="section__label mono">SAME SCREEN, IN YOUR POCKET</div>
+          <div className="section__title">This is what <em>now playing</em> looks like.</div>
+        <//>
+
+        <${motion.div}
+          className="preview-wrap"
+          initial=${{ opacity: 0, y: 30 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.7, delay: 0.1 }}
+        >
+          <div className="phone">
+            <div className="phone__screen">
+              <div className="phone__status mono">
+                <span>9:41</span>
+                <div className="phone__status-icons">
+                  ${IconSignal}
+                  ${IconWifi}
+                  ${IconBattery}
+                </div>
+              </div>
+
+              <div className="phone__header">
+                ${IconChevronLeft}
+                <div className="phone__header-title mono">QUEUE<br/>OFFLINE MIX</div>
+                ${IconMore}
+              </div>
+
+              <div className="phone__cover">
+                <div className="phone__cover-bars">
+                  ${[14, 26, 18, 34, 12, 28, 20].map((h, i) => html`<span key=${i} style=${{ height: h }}></span>`)}
+                </div>
+              </div>
+
+              <div className="phone__track">Low Static</div>
+              <div className="phone__artist mono">NTUNES SESSIONS</div>
+
+              <div className="phone__waveform">
+                ${wave.map((h, i) => html`<span key=${i} className=${i < playedCount ? "played" : ""} style=${{ height: h }}></span>`)}
+              </div>
+              <div className="phone__times mono">
+                <span>1:01</span>
+                <span>2:24</span>
+              </div>
+
+              <div className="phone__controls">
+                <button className="dim" aria-label="Shuffle">${IconShuffle}</button>
+                <button aria-label="Previous">${IconPrev}</button>
+                <button className="phone__play" aria-label="Play">${IconPlayGlyph}</button>
+                <button aria-label="Next">${IconNext}</button>
+                <button className="dim" aria-label="Repeat">${IconRepeat}</button>
+              </div>
+
+              <div className="phone__home"></div>
+            </div>
+          </div>
+        <//>
+      </div>
+    </section>
+  `;
+}
+
+/* ---------------- Feature icons (inline svg, minimal) ---------------- */
+const IconBackend = html`
+  <svg className="feat-card__icon" viewBox="0 0 34 34" fill="none">
+    <rect x="2" y="4" width="13" height="9" rx="2" stroke="#f2efe8" stroke-width="1.6"/>
+    <rect x="19" y="21" width="13" height="9" rx="2" stroke="#ff5a1f" stroke-width="1.6"/>
+    <path d="M8.5 13 V19 a3 3 0 0 0 3 3 H19" stroke="#5c5c60" stroke-width="1.6" fill="none"/>
+  </svg>
+`;
+const IconLyrics = html`
+  <svg className="feat-card__icon" viewBox="0 0 34 34" fill="none">
+    <circle cx="11" cy="24" r="5" fill="#e0142a"/>
+    <path d="M16 24 V6 L28 3 V21" stroke="#f2efe8" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <circle cx="23" cy="21" r="5" stroke="#f2efe8" stroke-width="1.8" fill="none"/>
+  </svg>
+`;
+const IconPlatforms = html`
+  <svg className="feat-card__icon" viewBox="0 0 34 34" fill="none">
+    <rect x="2" y="2" width="12" height="12" rx="2.5" fill="rgba(255,90,31,0.15)" stroke="#ff5a1f" stroke-width="1.4"/>
+    <rect x="18" y="2" width="12" height="12" rx="2.5" fill="rgba(242,239,232,0.06)" stroke="#5c5c60" stroke-width="1.4"/>
+    <rect x="2" y="18" width="12" height="12" rx="2.5" fill="rgba(242,239,232,0.06)" stroke="#5c5c60" stroke-width="1.4"/>
+    <rect x="18" y="18" width="12" height="12" rx="2.5" fill="rgba(224,20,42,0.12)" stroke="#e0142a" stroke-width="1.4"/>
+  </svg>
+`;
+
+function FeatureCard({ tag, icon, title, body, i }){
+  return html`
+    <${motion.div}
+      className="feat-card"
+      initial=${{ opacity: 0, y: 26 }}
+      whileInView=${{ opacity: 1, y: 0 }}
+      viewport=${{ once: true, margin: "-60px" }}
+      transition=${{ duration: 0.55, delay: i * 0.1 }}
+      whileHover=${{ y: -6, borderColor: "rgba(255,90,31,0.4)" }}
+    >
+      <span className="feat-card__tag">${tag}</span>
+      ${icon}
+      <div className="feat-card__title">${title}</div>
+      <div className="feat-card__body">${body}</div>
+    <//>
+  `;
+}
+
+function Features(){
+  return html`
+    <section className="section">
+      <div className="wrap">
+        <${motion.div}
+          initial=${{ opacity: 0, y: 20 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6 }}
+        >
+          <div className="section__label mono">WHAT IT'S ACTUALLY DOING</div>
+          <div className="section__title">One library, <em>two ways to reach it.</em></div>
+        <//>
+        <div className="feat-grid">
+          <${FeatureCard}
+            i=${0}
+            tag="01 — BACKEND"
+            icon=${IconBackend}
+            title="YouTube Music, with a fallback"
+            body="Search, browse and stream through the YouTube Music InnerTube API — if that path closes, Piped picks it back up. The library doesn't notice."
+          />
+          <${FeatureCard}
+            i=${1}
+            tag="02 — PLAYBACK"
+            icon=${IconLyrics}
+            title="Synced lyrics, dynamic color"
+            body="LRC lyrics scroll in time with the track, and the theme pulls its palette straight from the album art you're looking at."
+          />
+          <${FeatureCard}
+            i=${2}
+            tag="03 — REACH"
+            icon=${IconPlatforms}
+            title="Android to Linux, one codebase"
+            body="Android, iOS, macOS, Windows, Linux, Web — the same GetX-driven player persists across all of them, mini or full-screen."
+          />
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/* ---------------- Manifest ---------------- */
+function Manifest(){
+  const lines = [
+    { k: "get", v: "state, DI, routing, i18n" },
+    { k: "audio_service", v: "background audio, OS controls" },
+    { k: "just_audio", v: "playback engine", orange: true },
+    { k: "youtube_explode_dart", v: "stream extraction (forked)" },
+    { k: "hive", v: "local cache, queue, downloads" },
+    { k: "flutter_lyric", v: "synced LRC lyrics" },
+    { k: "palette_generator", v: "album-art theming" },
+  ];
+  return html`
+    <section className="section">
+      <div className="wrap">
+        <${motion.div}
+          initial=${{ opacity: 0, y: 20 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6 }}
+        >
+          <div className="section__label mono">WHAT'S RUNNING UNDER THE HOOD</div>
+          <div className="section__title">No black boxes. <em>Just the packages doing the work.</em></div>
+        <//>
+
+        <${motion.div}
+          className="manifest"
+          initial=${{ opacity: 0, y: 26 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6, delay: 0.15 }}
+        >
+          <div className="manifest__body">
+            ${lines.map((l, i) => html`
+              <div key=${i}>
+                <span className="manifest__key">${l.k}:</span> <span className=${"manifest__val" + (l.orange ? " orange" : "")}>${l.v}</span>
+              </div>
+            `)}
+            <div>
+              <span className="manifest__key">architecture:</span> <span className="manifest__val">controller-view, getx reactive<span className="manifest__cursor"></span></span>
+            </div>
+          </div>
+        <//>
+      </div>
+    </section>
+  `;
+}
+
+/* ---------------- Data flow ---------------- */
+function FlowRow({ steps, i }){
+  return html`
+    <${motion.div}
+      className="flow-row"
+      initial=${{ opacity: 0, x: -16 }}
+      whileInView=${{ opacity: 1, x: 0 }}
+      viewport=${{ once: true, margin: "-40px" }}
+      transition=${{ duration: 0.5, delay: i * 0.12 }}
+    >
+      <span className="flow-row__num mono">0${i + 1}</span>
+      <div className="flow-row__steps">
+        ${steps.map((s, j) => html`
+          <span key=${j} className="flow-step">
+            ${s}
+            ${j < steps.length - 1 ? html`<span className="flow-arrow">→</span>` : null}
+          </span>
+        `)}
+      </div>
+    <//>
+  `;
+}
+
+function DataFlow(){
+  const rows = [
+    ["YouTube Music API", "MusicServices", "NavParser", "Models", "Controllers", "Views"],
+    ["Tap song", "PlayerController", "StreamService", "MyAudioHandler", "just_audio", "OS controls"],
+  ];
+  return html`
+    <section className="section">
+      <div className="wrap">
+        <${motion.div}
+          initial=${{ opacity: 0, y: 20 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6 }}
+        >
+          <div className="section__label mono">HOW A TAP BECOMES SOUND</div>
+          <div className="section__title">The actual pipeline, <em>not the marketing version.</em></div>
+        <//>
+        <div className="flow-block">
+          ${rows.map((steps, i) => html`<${FlowRow} key=${i} steps=${steps} i=${i} />`)}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/* ---------------- Platforms ---------------- */
+function Platforms(){
+  const platforms = ["Android", "iOS", "macOS", "Windows", "Linux", "Web"];
+  return html`
+    <section className="section platforms" id="platforms">
+      <div className="wrap">
+        <${motion.div}
+          initial=${{ opacity: 0, y: 20 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6 }}
+        >
+          <div className="section__label mono">SAME CODEBASE, EVERYWHERE</div>
+          <div className="section__title">Six platforms. <em>One Flutter tree.</em></div>
+        <//>
+        <div className="platform-row">
+          ${platforms.map((p, i) => html`
+            <${motion.span}
+              key=${i}
+              className="platform-chip mono"
+              initial=${{ opacity: 0, y: 10 }}
+              whileInView=${{ opacity: 1, y: 0 }}
+              viewport=${{ once: true }}
+              transition=${{ duration: 0.4, delay: i * 0.06 }}
+            >${p}<//>
+          `)}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/* ---------------- Download ---------------- */
+function Download(){
+  return html`
+    <section className="section" id="download">
+      <div className="wrap">
+        <${motion.div}
+          initial=${{ opacity: 0, y: 20 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6 }}
+        >
+          <div className="section__label mono">GET THE APP</div>
+          <div className="section__title">Grab the build, <em>straight from the source.</em></div>
+        <//>
+
+        <${motion.div}
+          className="download-card"
+          initial=${{ opacity: 0, y: 26 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6, delay: 0.1 }}
+        >
+          <div className="download-card__info">
+            <div className="download-card__badge mono">
+              <span className="nav__dot"></span>
+              ANDROID · APK
+            </div>
+            <div className="download-card__heading">NTunes for Android</div>
+            <p className="download-card__body">
+              Sideload the latest release directly — no store review queue,
+              no bloat. Same reactive player, background playback and
+              synced lyrics as every other build.
+            </p>
+            <div className="download-card__meta mono">
+              <span>version <b>1.0.0</b></span>
+              <span>min OS <b>Android 8.0+</b></span>
+              <span>size <b>~28 MB</b></span>
+            </div>
+            <p className="other-platforms-note">
+              Also on iOS, macOS, Windows, Linux and Web — see
+              <a href="#platforms" style=${{ color: "var(--grey)" }}> supported platforms</a> below.
+            </p>
+          </div>
+          <div className="download-card__action">
+            <a className="android-btn" href=${ANDROID_APK_URL} download>
+              ${IconAndroid}
+              Download APK
+            </a>
+            <span className="download-card__hint mono">direct download · sideload required</span>
+          </div>
+        <//>
+      </div>
+    </section>
+  `;
+}
+
+/* ---------------- Contact / bug report ---------------- */
+function Contact(){
+  const [form, setForm] = useState({ name: "", email: "", type: "bug", message: "" });
+  const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
+
+  const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!form.email.trim() || !form.message.trim()){
+      setError("Please add your email and a short description before sending.");
+      setSent(false);
+      return;
+    }
+    setError("");
+    const subject = encodeURIComponent(`[NTunes ${form.type === "bug" ? "Bug report" : form.type === "feature" ? "Feature request" : "Feedback"}] from ${form.name || "anonymous"}`);
+    const body = encodeURIComponent(
+      `Type: ${form.type}\nName: ${form.name || "—"}\nEmail: ${form.email}\n\n${form.message}`
+    );
+    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+    setSent(true);
+  };
+
+  return html`
+    <section className="section" id="contact">
+      <div className="wrap">
+        <${motion.div}
+          initial=${{ opacity: 0, y: 20 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6 }}
+        >
+          <div className="section__label mono">FOUND SOMETHING BROKEN?</div>
+          <div className="section__title">Report a bug, <em>or just say hi.</em></div>
+        <//>
+
+        <${motion.form}
+          className="contact-card"
+          onSubmit=${submit}
+          initial=${{ opacity: 0, y: 26 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6, delay: 0.1 }}
+        >
+          <div className="field-row">
+            <div className="field">
+              <label htmlFor="c-name">Name</label>
+              <input id="c-name" type="text" placeholder="Optional" value=${form.name} onChange=${update("name")} />
+            </div>
+            <div className="field">
+              <label htmlFor="c-email">Email</label>
+              <input id="c-email" type="email" placeholder="you@example.com" value=${form.email} onChange=${update("email")} required />
+            </div>
+          </div>
+
+          <div className="field">
+            <label htmlFor="c-type">Type</label>
+            <select id="c-type" value=${form.type} onChange=${update("type")}>
+              <option value="bug">Bug report</option>
+              <option value="feature">Feature request</option>
+              <option value="other">Something else</option>
+            </select>
+          </div>
+
+          <div className="field">
+            <label htmlFor="c-message">What happened?</label>
+            <textarea id="c-message" placeholder="Steps to reproduce, what you expected, device & OS version…" value=${form.message} onChange=${update("message")} required></textarea>
+          </div>
+
+          ${error ? html`<div className="field-error">${error}</div>` : null}
+
+          <div className="contact-card__foot">
+            <button type="submit" className="btn btn--primary">Send report<//>
+            ${sent ? html`<span className="contact-card__status ok">Opening your email client…<//>` : null}
+          </div>
+
+          <p className="contact-alt mono">
+            Prefer email? Write directly to <a href=${`mailto:${SUPPORT_EMAIL}`}>${SUPPORT_EMAIL}</a>
+          </p>
+        <//>
+      </div>
+    </section>
+  `;
+}
+
+function Quote(){
+  return html`
+    <section className="section quote">
+      <div className="wrap">
+        <${motion.p}
+          className="quote__mark"
+          initial=${{ opacity: 0, y: 24 }}
+          whileInView=${{ opacity: 1, y: 0 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.8 }}
+        >
+          "music should play<br/>for everyone, uninterrupted."
+        <//>
+        <${motion.div}
+          className="quote__by mono"
+          initial=${{ opacity: 0 }}
+          whileInView=${{ opacity: 1 }}
+          viewport=${{ once: true }}
+          transition=${{ duration: 0.6, delay: 0.3 }}
+        >
+          — AD-FREE STREAMING, FOR ALL
+        <//>
+      </div>
+    </section>
+  `;
+}
+
+/* ---------------- Footer ---------------- */
+function Footer(){
+  return html`
+    <footer className="footer">
+      <div className="wrap">
+        <div className="footer__row">
+          <div className="footer__brand">
+            NTUNES <span className="nav__dot"></span>
+          </div>
+          <div className="footer__links mono">
+            <a href="#download">Download</a>
+            <a href="#contact">Report a bug</a>
+            <a href=${`mailto:${SUPPORT_EMAIL}`}>${SUPPORT_EMAIL}</a>
+          </div>
+          <div className="footer__coords">
+            LAT 10.44° N — LON 76.33° E<br/>
+            Kerala, India
+          </div>
+        </div>
+        <div className="footer__meta mono">
+          <span>package: ntunes</span>
+          <span>flutter · getx · youtube music api</span>
+        </div>
+      </div>
+    </footer>
+  `;
+}
+
+function App(){
+  return html`
+    <div>
+      <div className="bg-grid"></div>
+      <${Nav} />
+      <${Hero} />
+      <${PhonePreview} />
+      <${Features} />
+      <${DataFlow} />
+      <${Manifest} />
+      <${Platforms} />
+      <${Download} />
+      <${Contact} />
+      <${Quote} />
+      <${Footer} />
+    </div>
+  `;
+}
+
+createRoot(document.getElementById("root")).render(html`<${App} />`);
+</script>
+</body>
+</html>
