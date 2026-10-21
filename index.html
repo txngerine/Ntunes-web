@@ -850,7 +850,8 @@ const { useRef, useMemo, useState, useEffect } = React;
 
 /* ---------------- Config ---------------- */
 /* Update these two values to point at your real APK release and support inbox. */
-const ANDROID_APK_URL = "https://github.com/txngerine/Ntunes-web/releases/tag/v0.0.1";
+/* "latest/download" always resolves to the newest non-prerelease, so new releases need no site change as long as the asset is named NTunes.apk. */
+const ANDROID_APK_URL = "https://github.com/txngerine/Ntunes-web/releases/latest/download/NTunes.apk";
 const SUPPORT_EMAIL = "support@ntunes.app";
 
 const IconAndroid = html`
@@ -1373,9 +1374,9 @@ function Download(){
               synced lyrics as every other build.
             </p>
             <div className="download-card__meta mono">
-              <span>version <b>1.0.0</b></span>
-              <span>min OS <b>Android 8.0+</b></span>
-              <span>size <b>~69 MB</b></span>
+              <span>version <b>1.12.2</b></span>
+              <span>min OS <b>Android 7.0+</b></span>
+              <span>size <b>~70 MB</b></span>
             </div>
             <p className="other-platforms-note">
               Also on iOS, macOS, Windows, Linux and Web — see
@@ -1383,11 +1384,11 @@ function Download(){
             </p>
           </div>
           <div className="download-card__action">
-            <a className="android-btn" href=${ANDROID_APK_URL} target="_blank" rel="noopener noreferrer">
+            <a className="android-btn" href=${ANDROID_APK_URL} download>
               ${IconAndroid}
               Download APK
             </a>
-            <span className="download-card__hint mono">opens the GitHub release page · sideload required</span>
+            <span className="download-card__hint mono">direct download from GitHub releases · sideload required</span>
           </div>
         <//>
       </div>
