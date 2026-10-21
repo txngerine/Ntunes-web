@@ -4,6 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>NTunes — a music player that breathes with sound</title>
+<meta name="description" content="NTunes is an ad-free, cross-platform music player built with Flutter — YouTube Music streaming, synced lyrics, offline downloads and a queue you control." />
+<meta property="og:title" content="NTunes — music for a clearer mind" />
+<meta property="og:description" content="Ad-free, cross-platform music streaming built with Flutter." />
+<meta property="og:image" content="screenshots/now-playing.jpg" />
+<meta name="theme-color" content="#000000" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -292,155 +297,91 @@
     gap:8px;
   }
 
-  /* ---------- PHONE PREVIEW ---------- */
-  .preview-wrap{
-    margin-top: 56px;
+  /* ---------- SCREENS (real app screenshots) ---------- */
+  .screens-hero{
+    margin-top: 64px;
     display:flex;
     justify-content: center;
+    align-items: flex-end;
+    gap: 28px;
   }
-  .phone{
-    width: min(320px, 82vw);
-    border-radius: 44px;
-    padding: 14px;
-    background: linear-gradient(160deg, #0a0a0a, #000000 60%);
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 50px 100px -30px rgba(0,0,0,0.8);
+  .screens-grid{
+    margin-top: 24px;
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
   }
-  .phone__screen{
-    background: var(--black);
-    border-radius: 32px;
-    padding: 18px 20px 22px;
+  .screens-grid__label{
+    margin-top: 88px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--grey-dim);
+  }
+  .shot{
     display:flex;
     flex-direction: column;
-    align-items: center;
-    overflow: hidden;
+    gap: 16px;
+    min-width: 0;
   }
-  .phone__status{
-    display:flex;
-    justify-content: space-between;
-    align-items:center;
-    width:100%;
-    font-size: 11px;
-    color: var(--paper);
-    margin-bottom: 22px;
+  .screens-hero .shot{ width: 260px; flex-shrink: 0; }
+  .screens-hero .shot--feature{ width: 300px; }
+  .phone{
+    border-radius: 40px;
+    padding: 9px;
+    background: linear-gradient(160deg, #141414, #000000 60%);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 50px 100px -30px rgba(0,0,0,0.9);
   }
-  .phone__status-icons{ display:flex; align-items:center; gap:5px; }
-  .phone__header{
-    display:flex;
-    align-items:flex-start;
-    justify-content: space-between;
-    width:100%;
-    margin-bottom: 24px;
+  .shot--feature .phone{
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 40px 120px -20px rgba(139,0,0,0.45);
   }
-  .phone__header-title{
-    flex:1;
-    text-align:center;
-    font-size: 11.5px;
-    letter-spacing: 0.1em;
-    line-height: 1.5;
-    color: var(--paper);
-  }
-  .phone__cover{
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 22px;
-    border: 1.5px solid rgba(255,255,255,0.85);
-    background:
-      radial-gradient(circle at 30% 25%, rgba(255,255,255,0.18), transparent 55%),
-      linear-gradient(150deg, var(--orange), var(--red) 60%, #6a0f18);
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 22px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .phone__cover-bars{
-    display:flex;
-    align-items:center;
-    gap: 4px;
-    height: 46%;
-  }
-  .phone__cover-bars span{
-    width: 5px;
-    border-radius: 3px;
-    background: rgba(10,10,11,0.85);
+  .phone img{
     display:block;
-  }
-  .phone__track{
-    font-size: 15px;
-    font-weight: 700;
-    text-align:center;
-    line-height: 1.3;
-    margin-bottom: 6px;
-  }
-  .phone__artist{
-    font-size: 11.5px;
-    letter-spacing: 0.08em;
-    color: var(--orange);
-    margin-bottom: 26px;
-  }
-  .phone__waveform{
     width: 100%;
-    display:flex;
-    align-items:center;
-    gap: 2px;
-    height: 34px;
+    height: auto;
+    aspect-ratio: 1206 / 2622;
+    border-radius: 32px;
+    background: var(--black-3);
+  }
+  .shot__cap{ padding: 0 6px; }
+  .shot__num{
+    font-size: 10.5px;
+    color: var(--orange);
+    letter-spacing: 0.08em;
     margin-bottom: 6px;
   }
-  .phone__waveform span{
-    width: 2.5px;
-    border-radius: 2px;
-    flex-shrink: 0;
-    background: var(--line);
+  .shot__body{
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--grey);
   }
-  .phone__waveform span.played{
-    background: linear-gradient(180deg, var(--orange), var(--red));
-  }
-  .phone__times{
-    width:100%;
-    display:flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--grey-dim);
-    margin-bottom: 26px;
-  }
-  .phone__controls{
-    width:100%;
-    display:flex;
-    align-items:center;
-    justify-content: space-between;
-  }
-  .phone__controls button{
-    background:none;
-    border:none;
-    padding:0;
-    color: var(--paper);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor: pointer;
-  }
-  .phone__controls .dim{ color: var(--grey-dim); }
-  .phone__play{
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: var(--black-3);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .phone__home{
-    width: 110px;
-    height: 4px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.6);
-    margin-top: 26px;
+  /* below desktop: both rows become swipeable strips */
+  @media (max-width: 1000px){
+    .screens-hero,
+    .screens-grid{
+      display:flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 18px;
+      margin-left: -32px;
+      margin-right: -32px;
+      padding: 0 32px 12px;
+      scrollbar-width: none;
+    }
+    .screens-hero::-webkit-scrollbar,
+    .screens-grid::-webkit-scrollbar{ display:none; }
+    .screens-hero .shot,
+    .screens-hero .shot--feature,
+    .screens-grid .shot{ width: min(240px, 66vw); flex-shrink: 0; scroll-snap-align: center; }
+    .screens-grid__label{ margin-top: 56px; }
   }
   @media (max-width: 480px){
-    .phone{ padding: 10px; border-radius: 36px; }
-    .phone__screen{ padding: 16px 16px 18px; border-radius: 26px; }
+    .screens-hero,
+    .screens-grid{ margin-left: -20px; margin-right: -20px; padding: 0 20px 12px; }
+    .phone{ border-radius: 34px; padding: 7px; }
+    .phone img{ border-radius: 28px; }
   }
 
   /* ---------- SECTION SHARED ---------- */
@@ -918,18 +859,6 @@ const IconAndroid = html`
   </svg>
 `;
 
-/* -- phone-mock glyphs, kept minimal/line-style to match the status & transport bar -- */
-const IconWifi = html`<svg width="14" height="11" viewBox="0 0 16 12" fill="none"><path d="M1 4.2a10.5 10.5 0 0 1 14 0" stroke="#f2efe8" stroke-width="1.3" stroke-linecap="round"/><path d="M3.6 7a6.6 6.6 0 0 1 8.8 0" stroke="#f2efe8" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="10" r="1.1" fill="#f2efe8"/></svg>`;
-const IconSignal = html`<svg width="14" height="11" viewBox="0 0 16 12" fill="none"><rect x="0.5" y="7" width="2.6" height="4.5" rx="0.6" fill="#f2efe8"/><rect x="4.7" y="4.7" width="2.6" height="6.8" rx="0.6" fill="#f2efe8"/><rect x="8.9" y="2.5" width="2.6" height="9" rx="0.6" fill="#f2efe8"/><rect x="13.1" y="0.3" width="2.6" height="11.2" rx="0.6" fill="rgba(242,239,232,0.35)"/></svg>`;
-const IconBattery = html`<svg width="22" height="11" viewBox="0 0 24 12" fill="none"><rect x="0.7" y="0.7" width="19.6" height="10.6" rx="2.6" stroke="#f2efe8" stroke-width="1.1"/><rect x="2.2" y="2.2" width="13" height="7.6" rx="1.3" fill="#f2efe8"/><rect x="21" y="4" width="2" height="4" rx="1" fill="#f2efe8"/></svg>`;
-const IconChevronLeft = html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5 8 12l7 7" stroke="#f2efe8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const IconMore = html`<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.7" fill="#f2efe8"/><circle cx="12" cy="12" r="1.7" fill="#f2efe8"/><circle cx="12" cy="19" r="1.7" fill="#f2efe8"/></svg>`;
-const IconShuffle = html`<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M3 6h3.6c1.6 0 3 .9 3.8 2.3L15.6 18c.8 1.4 2.2 2.3 3.8 2.3H21M3 18h3.6c1.6 0 3-.9 3.8-2.3l.6-1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 3.5 21 6l-3.5 2.5M17.5 20.5 21 18l-3.5-2.5m-6-6L13 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-const IconPrev = html`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="2" height="14" rx="1" fill="currentColor"/><path d="M19 6.2 8.6 12 19 17.8Z" fill="currentColor"/></svg>`;
-const IconNext = html`<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="17" y="5" width="2" height="14" rx="1" fill="currentColor"/><path d="M5 6.2 15.4 12 5 17.8Z" fill="currentColor"/></svg>`;
-const IconPlayGlyph = html`<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 5.5v13l11-6.5Z" fill="currentColor"/></svg>`;
-const IconRepeat = html`<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 9V7a3 3 0 0 1 3-3h13m0 0-3-3m3 3-3 3M20 15v2a3 3 0 0 1-3 3H4m0 0 3 3m-3-3 3-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-
 /* ---------------- Waveform ---------------- */
 function Waveform(){
   const reduce = useReducedMotion();
@@ -982,6 +911,7 @@ function Nav(){
         NTUNES — PACKAGE v1
       </div>
       <div className="nav__right">
+        <a className="nav__link" href="#screens">Screens</a>
         <a className="nav__link" href="#download">Download</a>
         <a className="nav__link" href="#contact">Report a bug</a>
         <a className="nav__cta" href="#download">
@@ -1074,19 +1004,42 @@ function Hero(){
   `;
 }
 
-/* ---------------- Phone preview (now playing mock) ---------------- */
-function PhonePreview(){
-  const wave = useMemo(() => {
-    const arr = [];
-    for (let i = 0; i < 40; i++){
-      arr.push(4 + Math.abs(Math.sin(i * 0.5)) * 22 + Math.random() * 8);
-    }
-    return arr;
-  }, []);
-  const playedCount = 15;
+/* ---------------- Screens (real app screenshots) ---------------- */
+const FEATURED_SCREENS = [
+  { src: "screenshots/home.jpg", title: "Home", body: "Quick picks and featured playlists, tuned to what you actually play." },
+  { src: "screenshots/now-playing.jpg", title: "Now playing", body: "Full-bleed artwork, a live visualiser, lyrics and the equalizer one tap away.", feature: true },
+  { src: "screenshots/queue.jpg", title: "Up next", body: "Drag to reorder, shuffle, loop the whole queue or clear it out." },
+];
+const MORE_SCREENS = [
+  { src: "screenshots/search-results.jpg", title: "Search", body: "Songs, featured and community playlists for anything you type." },
+  { src: "screenshots/discover.jpg", title: "Discover", body: "Trending community playlists and regional hits, all in one scroll." },
+  { src: "screenshots/library.jpg", title: "Library", body: "Recently played, favorites, cached tracks and downloads — offline-ready." },
+  { src: "screenshots/settings.jpg", title: "Settings", body: "Personalisation, playback, downloads and backup & restore." },
+];
 
+function Shot({ s, i }){
   return html`
-    <section className="section">
+    <${motion.figure}
+      className=${"shot" + (s.feature ? " shot--feature" : "")}
+      initial=${{ opacity: 0, y: s.feature ? 40 : 28 }}
+      whileInView=${{ opacity: 1, y: 0 }}
+      viewport=${{ once: true, margin: "-40px" }}
+      transition=${{ duration: 0.6, delay: i * 0.08 }}
+    >
+      <div className="phone">
+        <img src=${s.src} alt=${`NTunes ${s.title} screen`} loading="lazy" decoding="async" width="1206" height="2622" />
+      </div>
+      <figcaption className="shot__cap">
+        <div className="shot__num mono">${String(i + 1).padStart(2, "0")} — ${s.title.toUpperCase()}</div>
+        <div className="shot__body">${s.body}</div>
+      </figcaption>
+    <//>
+  `;
+}
+
+function Screens(){
+  return html`
+    <section className="section" id="screens">
       <div className="wrap">
         <${motion.div}
           initial=${{ opacity: 0, y: 20 }}
@@ -1095,62 +1048,17 @@ function PhonePreview(){
           transition=${{ duration: 0.6 }}
         >
           <div className="section__label mono">SAME SCREEN, IN YOUR POCKET</div>
-          <div className="section__title">This is what <em>now playing</em> looks like.</div>
+          <div className="section__title">Music for a clearer mind. <em>This is what it looks like.</em></div>
         <//>
 
-        <${motion.div}
-          className="preview-wrap"
-          initial=${{ opacity: 0, y: 30 }}
-          whileInView=${{ opacity: 1, y: 0 }}
-          viewport=${{ once: true }}
-          transition=${{ duration: 0.7, delay: 0.1 }}
-        >
-          <div className="phone">
-            <div className="phone__screen">
-              <div className="phone__status mono">
-                <span>9:41</span>
-                <div className="phone__status-icons">
-                  ${IconSignal}
-                  ${IconWifi}
-                  ${IconBattery}
-                </div>
-              </div>
+        <div className="screens-hero">
+          ${FEATURED_SCREENS.map((s, i) => html`<${Shot} key=${s.src} s=${s} i=${i} />`)}
+        </div>
 
-              <div className="phone__header">
-                ${IconChevronLeft}
-                <div className="phone__header-title mono">QUEUE<br/>OFFLINE MIX</div>
-                ${IconMore}
-              </div>
-
-              <div className="phone__cover">
-                <div className="phone__cover-bars">
-                  ${[14, 26, 18, 34, 12, 28, 20].map((h, i) => html`<span key=${i} style=${{ height: h }}></span>`)}
-                </div>
-              </div>
-
-              <div className="phone__track">Low Static</div>
-              <div className="phone__artist mono">NTUNES SESSIONS</div>
-
-              <div className="phone__waveform">
-                ${wave.map((h, i) => html`<span key=${i} className=${i < playedCount ? "played" : ""} style=${{ height: h }}></span>`)}
-              </div>
-              <div className="phone__times mono">
-                <span>1:01</span>
-                <span>2:24</span>
-              </div>
-
-              <div className="phone__controls">
-                <button className="dim" aria-label="Shuffle">${IconShuffle}</button>
-                <button aria-label="Previous">${IconPrev}</button>
-                <button className="phone__play" aria-label="Play">${IconPlayGlyph}</button>
-                <button aria-label="Next">${IconNext}</button>
-                <button className="dim" aria-label="Repeat">${IconRepeat}</button>
-              </div>
-
-              <div className="phone__home"></div>
-            </div>
-          </div>
-        <//>
+        <div className="screens-grid__label mono">MORE SCREENS</div>
+        <div className="screens-grid">
+          ${MORE_SCREENS.map((s, i) => html`<${Shot} key=${s.src} s=${s} i=${i + FEATURED_SCREENS.length} />`)}
+        </div>
       </div>
     </section>
   `;
@@ -1171,6 +1079,27 @@ const IconLyrics = html`
     <circle cx="23" cy="21" r="5" stroke="#f2efe8" stroke-width="1.8" fill="none"/>
   </svg>
 `;
+const IconOffline = html`
+  <svg className="feat-card__icon" viewBox="0 0 34 34" fill="none">
+    <path d="M17 4 V20 M10.5 13.5 17 20l6.5-6.5" stroke="#f2efe8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="5" y="25" width="24" height="3" rx="1.5" fill="#8b0000"/>
+  </svg>
+`;
+const IconQueue = html`
+  <svg className="feat-card__icon" viewBox="0 0 34 34" fill="none">
+    <rect x="3" y="5" width="8" height="8" rx="2" fill="#8b0000"/>
+    <path d="M15 9h16M15 18h16M15 27h16" stroke="#f2efe8" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M3 18h8M3 27h8" stroke="#5c5c60" stroke-width="1.8" stroke-linecap="round"/>
+  </svg>
+`;
+const IconEq = html`
+  <svg className="feat-card__icon" viewBox="0 0 34 34" fill="none">
+    <path d="M7 4v26M17 4v26M27 4v26" stroke="#5c5c60" stroke-width="1.6" stroke-linecap="round"/>
+    <rect x="3.5" y="18" width="7" height="4" rx="2" fill="#f2efe8"/>
+    <rect x="13.5" y="9" width="7" height="4" rx="2" fill="#8b0000"/>
+    <rect x="23.5" y="22" width="7" height="4" rx="2" fill="#f2efe8"/>
+  </svg>
+`;
 const IconPlatforms = html`
   <svg className="feat-card__icon" viewBox="0 0 34 34" fill="none">
     <rect x="2" y="2" width="12" height="12" rx="2.5" fill="rgba(139,0,0,0.15)" stroke="#8b0000" stroke-width="1.4"/>
@@ -1187,7 +1116,7 @@ function FeatureCard({ tag, icon, title, body, i }){
       initial=${{ opacity: 0, y: 26 }}
       whileInView=${{ opacity: 1, y: 0 }}
       viewport=${{ once: true, margin: "-60px" }}
-      transition=${{ duration: 0.55, delay: i * 0.1 }}
+      transition=${{ duration: 0.55, delay: (i % 3) * 0.1 }}
       whileHover=${{ y: -6, borderColor: "rgba(139,0,0,0.4)" }}
     >
       <span className="feat-card__tag">${tag}</span>
@@ -1232,6 +1161,27 @@ function Features(){
             icon=${IconPlatforms}
             title="Android to Linux, one codebase"
             body="Android, iOS, macOS, Windows, Linux, Web — the same GetX-driven player persists across all of them, mini or full-screen."
+          />
+          <${FeatureCard}
+            i=${3}
+            tag="04 — OFFLINE"
+            icon=${IconOffline}
+            title="Downloads that stay put"
+            body="Download tracks or let NTunes cache what you play. Cached/Offline and Downloads live right in your library for when the signal doesn't."
+          />
+          <${FeatureCard}
+            i=${4}
+            tag="05 — QUEUE"
+            icon=${IconQueue}
+            title="A queue you actually control"
+            body="See everything up next with its runtime, drag to reorder, shuffle, loop the whole queue or clear it in one tap."
+          />
+          <${FeatureCard}
+            i=${5}
+            tag="06 — TUNING"
+            icon=${IconEq}
+            title="Equalizer, backup & restore"
+            body="Shape the sound with the built-in equalizer, then back up your library and settings so a new phone picks up where you left off."
           />
         </div>
       </div>
@@ -1591,7 +1541,7 @@ function App(){
       <div className="bg-grid"></div>
       <${Nav} />
       <${Hero} />
-      <${PhonePreview} />
+      <${Screens} />
       <${Features} />
       <${DataFlow} />
       <${Manifest} />
