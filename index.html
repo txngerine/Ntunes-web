@@ -9,6 +9,8 @@
 <meta property="og:description" content="Ad-free, cross-platform music streaming built with Flutter." />
 <meta property="og:image" content="screenshots/now-playing.jpg" />
 <meta name="theme-color" content="#000000" />
+<link rel="icon" type="image/png" href="assets/logo.png" />
+<link rel="apple-touch-icon" href="assets/logo.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -81,6 +83,8 @@
     gap:8px;
     flex-shrink: 0;
   }
+  .nav__logo{ width:26px; height:26px; border-radius:7px; display:block; }
+  .nav__logo--lg{ width:34px; height:34px; border-radius:9px; }
   .nav__dot{
     width:6px; height:6px; border-radius:50%;
     background: var(--red);
@@ -930,7 +934,7 @@ function Nav(){
       transition=${{ duration: 0.6 }}
     >
       <div className="nav__brand mono">
-        <span className="nav__dot"></span>
+        <img className="nav__logo" src="assets/logo.png" alt="NTunes logo" />
         NTUNES
       </div>
       <div className="nav__right">
@@ -1579,7 +1583,7 @@ function Footer(){
       <div className="wrap">
         <div className="footer__row">
           <div className="footer__brand">
-            NTUNES <span className="nav__dot"></span>
+            <img className="nav__logo nav__logo--lg" src="assets/logo.png" alt="NTunes logo" /> NTUNES
           </div>
           <div className="footer__links mono">
             <a href="#download">Download</a>
